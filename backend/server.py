@@ -10,7 +10,12 @@ FRONTEND_ALLOWED = os.getenv("FRONTEND_ORIGIN", "https://etude8-bible.vercel.app
 app = FastAPI(title=APP_NAME, version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ALLOWED, "http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        FRONTEND_ALLOWED, 
+        "https://faith-study-hub-1.preview.emergentagent.com",
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -84,7 +89,7 @@ CLUSTER_HINTS: Dict[str, List[str]] = {
 # -----------------------------
 # Utilitaires
 # -----------------------------
-BOOK_REGEX = r"^\s*([1-3]?\s?[A-Za-zÉÈÊËÀÂÎÏÔÙÛÜÇéèêëàâîïôùûüç\-’' ]+)\s+(\d+)(?::\d+)?(?:\s+\S+.*)?$"
+BOOK_REGEX = r"^\s*([1-3]?\s?[A-Za-zÉÈÊËÀÂÎÏÔÙÛÜÇéèêëàâîïôùûüç\-'' ]+)\s+(\d+)(?::\d+)?(?:\s+\S+.*)?$"
 
 def parse_passage(p: str) -> Tuple[str, int]:
     m = re.match(BOOK_REGEX, p.strip())
@@ -133,8 +138,8 @@ def generate_section(title: str, book: str, chapter: int, cl: str, rnd: random.R
     if "questions d'étude" in title.lower():
         base = [
             "- Que révèle ce chapitre sur Dieu ?",
-            "- Que révèle ce chapitre sur l’homme ?",
-            "- Qu’appelle-t-il à changer aujourd’hui ?",
+            "- Que révèle ce chapitre sur l'homme ?",
+            "- Qu'appelle-t-il à changer aujourd'hui ?",
         ]
     if "mémoire / versets clés" in title.lower():
         base = [
@@ -192,3 +197,8 @@ def generate_study(body: GenerateStudyRequest) -> Dict[str, Any]:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur génération 28 rubriques : {e}")
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", "8001"))
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=False)
